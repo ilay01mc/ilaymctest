@@ -10,19 +10,30 @@
   <link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d5/Grass_Block_JE3_BE3.png" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
+  <!-- tsParticles -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+
   <style>
     body {
       font-family: 'Press Start 2P', cursive;
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-      background: url('https://r4.wallpaperflare.com/wallpaper/640/143/649/minecraft-moon-stars-wallpaper-8c30682ee8313bc09812b86218e11172.jpg') no-repeat center center fixed;
-      background-size: cover;
       background-color: #0a0a0a;
+      color: #10b981;
+    }
+
+    #stars-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
     }
 
     .overlay {
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       min-height: 100vh;
       padding: 1rem;
     }
@@ -49,7 +60,9 @@
   </style>
 </head>
 
-<body class="text-green-300">
+<body>
+  <div id="stars-bg"></div>
+
   <div class="overlay">
     <!-- Toast -->
     <div id="toast">Copied to clipboard!</div>
@@ -97,7 +110,28 @@
     </footer>
   </div>
 
-  <!-- Animations -->
+  <!-- tsParticles Stars -->
+  <script>
+    tsParticles.load("stars-bg", {
+      fullScreen: { enable: false },
+      background: { color: "#0a0a0a" },
+      particles: {
+        number: { value: 80 },
+        color: { value: ["#ffffff", "#88f0ff", "#77ffaa"] },
+        shape: { type: "circle" },
+        opacity: { value: 0.6 },
+        size: { value: { min: 1, max: 2 } },
+        move: {
+          enable: true,
+          speed: 0.3,
+          direction: "bottom",
+          straight: false
+        }
+      }
+    });
+  </script>
+
+  <!-- Fade In -->
   <script>
     document.querySelectorAll('.animate-fade-in').forEach(el => {
       el.style.opacity = 0;
@@ -114,7 +148,7 @@
     });
   </script>
 
-  <!-- Copy + Toast -->
+  <!-- Copy IP -->
   <script>
     function copyIP() {
       const fullIP = "ilaymc.ddns.net:19132";
