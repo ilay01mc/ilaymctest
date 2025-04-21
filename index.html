@@ -4,22 +4,62 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ilaymc - Minecraft Bedrock Server</title>
+
+  <!-- Tailwind -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <!-- Pixel Font -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d5/Grass_Block_JE3_BE3.png" />
+
+  <!-- Particles.js -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+
   <style>
     body {
       font-family: 'Press Start 2P', cursive;
-      background: #121212 url('https://wallpapercave.com/wp/wp9445465.png') no-repeat center center fixed;
-      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+    #particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100vw;
+      height: 100vh;
     }
     .pixel-border {
       border: 4px solid #2c2c2c;
       box-shadow: 0 0 0 4px #000;
     }
+    #toast {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: #d1fae5;
+      border: 2px solid #10b981;
+      padding: 10px 20px;
+      font-size: 10px;
+      border-radius: 5px;
+      z-index: 50;
+    }
   </style>
 </head>
-<body class="text-green-300">
-  <div class="min-h-screen bg-black bg-opacity-60 p-4">
+<body class="bg-black text-green-300">
+
+  <!-- Particles Background -->
+  <div id="particles"></div>
+
+  <!-- Toast Popup -->
+  <div id="toast">Copied to clipboard!</div>
+
+  <div class="min-h-screen bg-black bg-opacity-70 p-4">
 
     <!-- Hero -->
     <section class="text-center my-10 animate-fade-in">
@@ -59,21 +99,10 @@
       </ul>
     </section>
 
-    <!-- Vote -->
-    <section class="text-center my-16 animate-fade-in">
-      <h2 class="text-2xl mb-4">Vote for ilaymc</h2>
-      <p class="text-sm mb-4">Support the server and get rewards!</p>
-      <div class="space-y-2">
-        <a href="#" class="block text-blue-300 hover:text-yellow-300 transition">Vote Site 1 (Coming Soon)</a>
-        <a href="#" class="block text-blue-300 hover:text-yellow-300 transition">Vote Site 2 (Coming Soon)</a>
-      </div>
-    </section>
-
     <!-- Footer -->
     <footer class="text-center py-6 text-gray-400 text-xs animate-fade-in">
       &copy; 2025 ilaymc. Made with blocks.
     </footer>
-
   </div>
 
   <!-- Animations -->
@@ -91,6 +120,18 @@
         }, i * 200);
       });
     });
+  </script>
+
+  <!-- Copy IP + Toast -->
+  <script>
+    function copyIP() {
+      const fullIP = "ilaymc.ddns.net:19132";
+      navigator.clipboard.writeText(fullIP).then(() => {
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 2000);
+      });
+    }
   </script>
 
   <!-- Live Server Stats -->
@@ -113,14 +154,20 @@
     setInterval(fetchServerStatus, 30000);
   </script>
 
-  <!-- Copy IP -->
+  <!-- Particles Init -->
   <script>
-    function copyIP() {
-      const fullIP = "ilaymc.ddns.net:19132";
-      navigator.clipboard.writeText(fullIP).then(() => {
-        alert("Copied: " + fullIP);
-      });
-    }
+    tsParticles.load("particles", {
+      fullScreen: { enable: false },
+      background: { color: { value: "#000000" } },
+      particles: {
+        number: { value: 80 },
+        color: { value: "#10b981" },
+        links: { enable: true, color: "#10b981", distance: 100 },
+        move: { enable: true, speed: 1 },
+        size: { value: 2 },
+        opacity: { value: 0.3 },
+      }
+    });
   </script>
 </body>
 </html>
