@@ -7,11 +7,7 @@
 
   <!-- Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d5/Grass_Block_JE3_BE3.png" />
-
-  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
@@ -19,13 +15,46 @@
       font-family: 'Press Start 2P', cursive;
       margin: 0;
       padding: 0;
-      background-color: #0b0b0b;
       overflow-x: hidden;
+      background-color: #0a0a0a;
     }
+
+    #rainLayer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url("rain.webp");
+      background-repeat: repeat;
+      background-size: cover;
+      animation: rainScroll 1.5s linear infinite;
+      z-index: -2;
+      opacity: 0.3;
+    }
+
+    @keyframes rainScroll {
+      from { background-position-y: 0; }
+      to { background-position-y: 100%; }
+    }
+
+    #grassLayer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background-image: url("grass.webp");
+      background-repeat: repeat-x;
+      background-size: 64px 64px;
+      z-index: -1;
+    }
+
     .pixel-border {
       border: 4px solid #2c2c2c;
       box-shadow: 0 0 0 4px #000;
     }
+
     #toast {
       display: none;
       position: fixed;
@@ -40,34 +69,12 @@
       border-radius: 5px;
       z-index: 50;
     }
-    #rainCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: -1;
-      width: 100vw;
-      height: 100vh;
-    }
-    #grassLayer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 64px;
-      background-image: url("https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d5/Grass_Block_JE3_BE3.png");
-      background-size: 64px 64px;
-      background-repeat: repeat-x;
-      z-index: -1;
-    }
   </style>
 </head>
+
 <body class="text-green-300">
-
-  <!-- Canvas Rain Background -->
-  <canvas id="rainCanvas"></canvas>
+  <div id="rainLayer"></div>
   <div id="grassLayer"></div>
-
-  <!-- Toast -->
   <div id="toast">Copied to clipboard!</div>
 
   <div class="min-h-screen bg-black bg-opacity-70 p-4">
@@ -114,7 +121,7 @@
     </footer>
   </div>
 
-  <!-- Fade-In -->
+  <!-- Fade Animations -->
   <script>
     document.querySelectorAll('.animate-fade-in').forEach(el => {
       el.style.opacity = 0;
@@ -131,7 +138,7 @@
     });
   </script>
 
-  <!-- Copy -->
+  <!-- Copy + Toast -->
   <script>
     function copyIP() {
       const fullIP = "ilaymc.ddns.net:19132";
@@ -143,7 +150,7 @@
     }
   </script>
 
-  <!-- Status -->
+  <!-- Server Status -->
   <script>
     async function fetchServerStatus() {
       try {
@@ -161,48 +168,6 @@
     }
     fetchServerStatus();
     setInterval(fetchServerStatus, 30000);
-  </script>
-
-  <!-- Rain Canvas Effect -->
-  <script>
-    const canvas = document.getElementById("rainCanvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    let drops = [];
-    for (let i = 0; i < 300; i++) {
-      drops.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        len: Math.random() * 20 + 10,
-        speed: Math.random() * 4 + 4
-      });
-    }
-
-    function drawRain() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "#10b981";
-      ctx.lineWidth = 1;
-      for (let drop of drops) {
-        ctx.beginPath();
-        ctx.moveTo(drop.x, drop.y);
-        ctx.lineTo(drop.x, drop.y + drop.len);
-        ctx.stroke();
-        drop.y += drop.speed;
-        if (drop.y > canvas.height) {
-          drop.y = -drop.len;
-          drop.x = Math.random() * canvas.width;
-        }
-      }
-      requestAnimationFrame(drawRain);
-    }
-    drawRain();
-
-    window.addEventListener("resize", () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
   </script>
 </body>
 </html>
