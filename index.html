@@ -26,20 +26,19 @@
       <h1 class="text-4xl sm:text-6xl mb-4">Welcome to ilaymc</h1>
       <p class="text-lg mb-2">Minecraft Bedrock Server</p>
       <p id="status" class="text-yellow-400 text-sm mb-2">Checking status...</p>
+
       <div class="bg-gray-800 p-4 rounded pixel-border mx-auto inline-block max-w-[90%] sm:max-w-md">
-  <p class="text-white text-xs mb-1">Server IP:</p>
-  <div class="text-green-300 text-lg break-all leading-relaxed">
-    <p><strong>IP:</strong> ilaymc.ddns.net</p>
-    <p><strong>Port:</strong> 19132</p>
-  </div>
-  <button
-    onclick="copyIP()"
-    class="mt-4 text-xs text-black bg-yellow-300 hover:bg-yellow-400 px-2 py-1 rounded transition"
-  >
-    Copy
-  </button>
-</div>
+        <p class="text-white text-xs mb-3">Server IP:</p>
+        <p class="text-green-300 text-lg break-all">ilaymc.ddns.net</p>
+        <p class="text-green-300 text-lg break-all">19132</p>
+        <button
+          onclick="copyIP()"
+          class="mt-4 text-xs text-black bg-yellow-300 hover:bg-yellow-400 px-2 py-1 rounded transition"
+        >
+          Copy
+        </button>
       </div>
+
       <p class="text-xs text-gray-400 mt-2">(updates every 30 seconds)</p>
     </section>
 
@@ -117,9 +116,9 @@
   <!-- Copy IP -->
   <script>
     function copyIP() {
-      const ip = document.getElementById("ip-text").innerText;
-      navigator.clipboard.writeText(ip).then(() => {
-        alert("Copied: " + ip);
+      const fullIP = "ilaymc.ddns.net:19132";
+      navigator.clipboard.writeText(fullIP).then(() => {
+        alert("Copied: " + fullIP);
       });
     }
   </script>
