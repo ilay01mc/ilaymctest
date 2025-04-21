@@ -20,7 +20,7 @@
       padding: 0;
       overflow-x: hidden;
       background-color: #0a0a0a;
-      color: #60a5fa; /* Tailwind sky-400 */
+      color: #60a5fa;
     }
 
     #stars-bg {
@@ -79,23 +79,23 @@
         <p class="text-sky-300 text-lg break-all">19132</p>
         <button
           onclick="copyIP()"
-          class="mt-4 text-xs text-black bg-sky-300 hover:bg-sky-400 px-2 py-1 rounded transition"
+          class="mt-4 text-sm font-bold text-black bg-sky-300 hover:bg-sky-400 px-4 py-2 rounded transition"
         >
           Copy
         </button>
       </div>
-      <p class="text-xs text-gray-400 mt-2">(updates every 30 seconds)</p>
+      <p class="text-xs text-white mt-2">(updates every 30 seconds)</p>
     </section>
 
     <!-- About -->
     <section class="max-w-2xl mx-auto my-16 text-center animate-fade-in">
-      <h2 class="text-2xl mb-4">About the Server</h2>
+      <h2 class="text-2xl mb-4 text-white">About the Server</h2>
       <p class="text-sm">Play survival with a twist, community-driven features, events, and more! Made for fun, made for you.</p>
     </section>
 
     <!-- Rules -->
     <section class="max-w-xl mx-auto my-16 animate-fade-in">
-      <h2 class="text-2xl mb-4 text-center">Server Rules</h2>
+      <h2 class="text-2xl mb-4 text-center text-white">Server Rules</h2>
       <ul class="list-disc pl-6 text-sm space-y-2 text-left">
         <li>No hacking or cheating</li>
         <li>Respect other players</li>
@@ -110,7 +110,7 @@
     </footer>
   </div>
 
-  <!-- Stars (tsparticles) -->
+  <!-- Stars with Twinkle -->
   <script>
     tsParticles.load("stars-bg", {
       fullScreen: { enable: false },
@@ -119,8 +119,16 @@
         number: { value: 90 },
         color: { value: ["#ffffff", "#cbd5e1", "#a5f3fc"] },
         shape: { type: "square" },
-        opacity: { value: 0.8 },
-        size: { value: { min: 1, max: 2 } },
+        opacity: {
+          value: { min: 0.4, max: 0.8 },
+          animation: {
+            enable: true,
+            speed: 0.5,
+            minimumValue: 0.3,
+            sync: false
+          }
+        },
+        size: { value: { min: 2, max: 4 } },
         move: {
           enable: true,
           speed: 0.2,
@@ -170,7 +178,7 @@
 
         if (data && data.online) {
           const players = data.players.online;
-          status.innerHTML = `<span class="text-green-400">Online</span> - ${players} players`;
+          status.innerHTML = `<span class="text-green-400">Online</span> - <span class="text-white">${players} players</span>`;
         } else {
           status.innerHTML = `<span class="text-red-400">Offline</span>`;
         }
