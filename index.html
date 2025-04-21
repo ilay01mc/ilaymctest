@@ -5,31 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ilaymc - Minecraft Bedrock Server</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <!-- Pixel Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d5/Grass_Block_JE3_BE3.png" />
 
-  <!-- Particles.js -->
-  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
     body {
       font-family: 'Press Start 2P', cursive;
       margin: 0;
       padding: 0;
-    }
-    #particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: -1;
-      width: 100vw;
-      height: 100vh;
+      background-color: #0b0b0b;
+      overflow-x: hidden;
     }
     .pixel-border {
       border: 4px solid #2c2c2c;
@@ -49,18 +40,37 @@
       border-radius: 5px;
       z-index: 50;
     }
+    #rainCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      width: 100vw;
+      height: 100vh;
+    }
+    #grassLayer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background-image: url("https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d5/Grass_Block_JE3_BE3.png");
+      background-size: 64px 64px;
+      background-repeat: repeat-x;
+      z-index: -1;
+    }
   </style>
 </head>
-<body class="bg-black text-green-300">
+<body class="text-green-300">
 
-  <!-- Particles Background -->
-  <div id="particles"></div>
+  <!-- Canvas Rain Background -->
+  <canvas id="rainCanvas"></canvas>
+  <div id="grassLayer"></div>
 
-  <!-- Toast Popup -->
+  <!-- Toast -->
   <div id="toast">Copied to clipboard!</div>
 
   <div class="min-h-screen bg-black bg-opacity-70 p-4">
-
     <!-- Hero -->
     <section class="text-center my-10 animate-fade-in">
       <h1 class="text-4xl sm:text-6xl mb-4">Welcome to ilaymc</h1>
@@ -78,7 +88,6 @@
           Copy
         </button>
       </div>
-
       <p class="text-xs text-gray-400 mt-2">(updates every 30 seconds)</p>
     </section>
 
@@ -105,7 +114,7 @@
     </footer>
   </div>
 
-  <!-- Animations -->
+  <!-- Fade-In -->
   <script>
     document.querySelectorAll('.animate-fade-in').forEach(el => {
       el.style.opacity = 0;
@@ -122,7 +131,7 @@
     });
   </script>
 
-  <!-- Copy IP + Toast -->
+  <!-- Copy -->
   <script>
     function copyIP() {
       const fullIP = "ilaymc.ddns.net:19132";
@@ -134,7 +143,7 @@
     }
   </script>
 
-  <!-- Live Server Stats -->
+  <!-- Status -->
   <script>
     async function fetchServerStatus() {
       try {
@@ -154,19 +163,45 @@
     setInterval(fetchServerStatus, 30000);
   </script>
 
-  <!-- Particles Init -->
+  <!-- Rain Canvas Effect -->
   <script>
-    tsParticles.load("particles", {
-      fullScreen: { enable: false },
-      background: { color: { value: "#000000" } },
-      particles: {
-        number: { value: 80 },
-        color: { value: "#10b981" },
-        links: { enable: true, color: "#10b981", distance: 100 },
-        move: { enable: true, speed: 1 },
-        size: { value: 2 },
-        opacity: { value: 0.3 },
+    const canvas = document.getElementById("rainCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let drops = [];
+    for (let i = 0; i < 300; i++) {
+      drops.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        len: Math.random() * 20 + 10,
+        speed: Math.random() * 4 + 4
+      });
+    }
+
+    function drawRain() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#10b981";
+      ctx.lineWidth = 1;
+      for (let drop of drops) {
+        ctx.beginPath();
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x, drop.y + drop.len);
+        ctx.stroke();
+        drop.y += drop.speed;
+        if (drop.y > canvas.height) {
+          drop.y = -drop.len;
+          drop.x = Math.random() * canvas.width;
+        }
       }
+      requestAnimationFrame(drawRain);
+    }
+    drawRain();
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     });
   </script>
 </body>
