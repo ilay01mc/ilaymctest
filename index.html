@@ -123,34 +123,11 @@
       <p class="text-xs text-white mt-2">(updates every 30 seconds)</p>
     </section>
 
-    <!-- Tabs for Navigation -->
+    <!-- Server Status -->
     <section class="max-w-2xl mx-auto my-16 text-center animate-fade-in">
-      <div class="tabs">
-        <div class="tab" id="status-tab">Server Status</div>
-        <div class="tab" id="players-tab">Players</div>
-        <div class="tab" id="uptime-tab">Uptime</div>
-      </div>
-
-      <!-- Server Status -->
-      <div id="status-container" class="tab-content">
-        <h2 class="text-xl text-white">Server Status</h2>
-        <p id="status-text" class="text-white">Loading...</p>
-        <p id="server-ping" class="text-white">Ping: Loading...</p>
-      </div>
-
-      <!-- Player List -->
-      <div id="player-container" class="tab-content hidden">
-        <h2 class="text-xl text-white">Online Players</h2>
-        <ul id="player-list" class="text-sm text-sky-300 space-y-1">
-          <li>Loading...</li>
-        </ul>
-      </div>
-
-      <!-- Uptime -->
-      <div id="uptime-container" class="tab-content hidden">
-        <h2 class="text-xl text-white">Server Uptime</h2>
-        <p id="uptime-text" class="text-white">Loading...</p>
-      </div>
+      <h2 class="text-2xl mb-4 text-white">Server Status</h2>
+      <p id="status-text" class="text-white">Loading...</p>
+      <p id="server-ping" class="text-white">Ping: Loading...</p>
     </section>
 
     <!-- Footer -->
@@ -188,30 +165,33 @@
     });
   </script>
 
-  <!-- JavaScript for tabs and content toggle -->
+  <!-- Password Logic -->
   <script>
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', function () {
-        const activeTab = document.querySelector('.tab.active');
-        if (activeTab) activeTab.classList.remove('active');
-        tab.classList.add('active');
+    const correctPassword = "Fabrica1100?!";
+    const ipBlock = document.getElementById("ipBlock");
+    const pwBox = document.getElementById("pwBox");
+    const errorMsg = document.getElementById("pwError");
 
-        document.querySelectorAll('.tab-content').forEach(content => {
-          content.classList.add('hidden');
-        });
+    function checkPassword() {
+      const pw = document.getElementById("pwInput").value;
+      if (pw === correctPassword) {
+        localStorage.setItem("passwordAccepted", "true");
+        pwBox.classList.add("hidden");
+        ipBlock.classList.remove("hidden");
+        setTimeout(() => ipBlock.classList.add("visible"), 10);
+      } else {
+        errorMsg.classList.remove("hidden");
+      }
+    }
 
-        if (tab.id === 'status-tab') {
-          document.getElementById('status-container').classList.remove('hidden');
-        } else if (tab.id === 'players-tab') {
-          document.getElementById('player-container').classList.remove('hidden');
-        } else if (tab.id === 'uptime-tab') {
-          document.getElementById('uptime-container').classList.remove('hidden');
-        }
-      });
+    window.addEventListener("load", () => {
+      const access = localStorage.getItem("passwordAccepted");
+      if (access === "true") {
+        pwBox.classList.add("hidden");
+        ipBlock.classList.remove("hidden");
+        setTimeout(() => ipBlock.classList.add("visible"), 10);
+      }
     });
-
-    // Default: Show the server status
-    document.getElementById('status-tab').click();
   </script>
 
   <!-- Server Status Fetch -->
@@ -267,22 +247,6 @@
 
     fetchPlayers();
     setInterval(fetchPlayers, 10000);
-  </script>
-
-  <!-- Uptime Fetch -->
-  <script>
-    async function fetchUptime() {
-      try {
-        const res = await fetch('https://mcsrvstat.us/api/servers/ilaymc.ddns.net:19132');
-        const data = await res.json();
-        document.getElementById("uptime-text").innerHTML = data.uptime || 'N/A';
-      } catch (e) {
-        document.getElementById('uptime-text').innerHTML = 'Error fetching uptime';
-      }
-    }
-
-    fetchUptime();
-    setInterval(fetchUptime, 30000);
   </script>
 </body>
 </html>
