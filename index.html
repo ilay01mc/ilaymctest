@@ -273,7 +273,7 @@
   <script>
     async function fetchUptime() {
       try {
-        const res = await fetch('https://api.mcsrvstat.us/uptime/ilaymc.ddns.net:19132');
+        const res = await fetch('https://mcsrvstat.us/api/servers/ilaymc.ddns.net:19132');
         const data = await res.json();
         document.getElementById("uptime-text").innerHTML = data.uptime || 'N/A';
       } catch (e) {
