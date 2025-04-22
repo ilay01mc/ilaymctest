@@ -5,12 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ilaymc - Minecraft Bedrock Server</title>
 
-  <!-- Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/d5/Grass_Block_JE3_BE3.png" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
-  <!-- tsParticles -->
   <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/tsparticles.bundle.min.js"></script>
 
   <style>
@@ -57,6 +54,33 @@
       border-radius: 5px;
       z-index: 50;
     }
+
+    .fade-in {
+      opacity: 0;
+      transition: opacity 0.6s ease-in;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+    }
+
+    .glowing-text {
+  text-shadow:
+    0 0 4px #fff,
+    0 0 10px #3b82f6,
+    0 0 20px #3b82f6,
+    0 0 40px #3b82f6;
+  animation: glowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% {
+    text-shadow: 0 0 2px #fff, 0 0 5px #3b82f6, 0 0 10px #3b82f6;
+  }
+  100% {
+    text-shadow: 0 0 6px #fff, 0 0 12px #3b82f6, 0 0 30px #3b82f6;
+  }
+}
   </style>
 </head>
 
@@ -64,53 +88,54 @@
   <div id="stars-bg"></div>
 
   <div class="overlay">
-    <!-- Toast -->
     <div id="toast">Copied to clipboard!</div>
 
     <!-- Hero -->
     <section class="text-center my-10 animate-fade-in">
-      <h1 class="text-4xl sm:text-6xl mb-4">Welcome to ilaymc</h1>
-      <p class="text-lg mb-2">Minecraft Bedrock Server</p>
+      <h1 class="text-5xl sm:text-6xl mb-4 text-white glowing-text">ilaymc</h1>
       <p id="status" class="text-sm mb-2">Checking status...</p>
 
       <div class="bg-gray-800 p-4 rounded pixel-border mx-auto inline-block max-w-[90%] sm:max-w-md">
         <p class="text-white text-xs mb-3">Server IP:</p>
-        <p class="text-sky-300 text-lg break-all">ilaymc.ddns.net</p>
-        <p class="text-sky-300 text-lg break-all">19132</p>
-        <button
-          onclick="copyIP()"
-          class="mt-4 text-sm font-bold text-black bg-sky-300 hover:bg-sky-400 px-4 py-2 rounded transition"
-        >
-          Copy
-        </button>
+
+        <!-- Password Input -->
+        <div id="pwBox">
+          <input id="pwInput" type="password" placeholder="Enter password"
+                 class="bg-black text-white border border-sky-300 px-2 py-1 text-xs w-full mb-2 text-center" />
+          <button onclick="checkPassword()"
+                  class="w-full text-sm font-bold text-black bg-sky-300 hover:bg-sky-400 px-3 py-2 rounded transition">
+            Unlock
+          </button>
+          <p id="pwError" class="text-red-400 text-xs mt-2 hidden">Incorrect password.</p>
+        </div>
+
+        <!-- IP Display -->
+        <div id="ipBlock" class="fade-in hidden text-center">
+          <p class="text-sky-300 text-lg break-all mt-2">ilaymc.ddns.net</p>
+          <p class="text-sky-300 text-lg break-all">19132</p>
+          <button onclick="copyIP()"
+                  class="mt-4 text-sm font-bold text-black bg-sky-300 hover:bg-sky-400 px-4 py-2 rounded transition">
+            Copy
+          </button>
+        </div>
       </div>
+
       <p class="text-xs text-white mt-2">(updates every 30 seconds)</p>
     </section>
 
     <!-- About -->
     <section class="max-w-2xl mx-auto my-16 text-center animate-fade-in">
       <h2 class="text-2xl mb-4 text-white">About the Server</h2>
-      <p class="text-sm">Play survival with a twist, community-driven features, events, and more! Made for fun, made for you.</p>
-    </section>
-
-    <!-- Rules -->
-    <section class="max-w-xl mx-auto my-16 animate-fade-in">
-      <h2 class="text-2xl mb-4 text-center text-white">Server Rules</h2>
-      <ul class="list-disc pl-6 text-sm space-y-2 text-left">
-        <li>No hacking or cheating</li>
-        <li>Respect other players</li>
-        <li>No griefing</li>
-        <li>Use common sense</li>
-      </ul>
+      <p class="text-sm">A vanilla Bedrock edition survival server</p>
     </section>
 
     <!-- Footer -->
     <footer class="text-center py-6 text-gray-400 text-xs animate-fade-in">
-      &copy; 2025 ilaymc. Made with blocks.
+      &copy; 2025 ilaymc.
     </footer>
   </div>
 
-  <!-- Stars with Twinkle -->
+  <!-- tsParticles (Stars) -->
   <script>
     tsParticles.load("stars-bg", {
       fullScreen: { enable: false },
@@ -139,7 +164,7 @@
     });
   </script>
 
-  <!-- Fade In -->
+  <!-- Fade In Load -->
   <script>
     document.querySelectorAll('.animate-fade-in').forEach(el => {
       el.style.opacity = 0;
@@ -166,6 +191,35 @@
         setTimeout(() => toast.style.display = "none", 2000);
       });
     }
+  </script>
+
+  <!-- Password Logic -->
+  <script>
+    const correctPassword = "123";
+    const ipBlock = document.getElementById("ipBlock");
+    const pwBox = document.getElementById("pwBox");
+    const errorMsg = document.getElementById("pwError");
+
+    function checkPassword() {
+      const pw = document.getElementById("pwInput").value;
+      if (pw === correctPassword) {
+        localStorage.setItem("passwordAccepted", "true");
+        pwBox.classList.add("hidden");
+        ipBlock.classList.remove("hidden");
+        setTimeout(() => ipBlock.classList.add("visible"), 10);
+      } else {
+        errorMsg.classList.remove("hidden");
+      }
+    }
+
+    window.addEventListener("load", () => {
+      const access = localStorage.getItem("passwordAccepted");
+      if (access === "true") {
+        pwBox.classList.add("hidden");
+        ipBlock.classList.remove("hidden");
+        setTimeout(() => ipBlock.classList.add("visible"), 10);
+      }
+    });
   </script>
 
   <!-- Server Status -->
