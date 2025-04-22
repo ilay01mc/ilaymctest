@@ -1,27 +1,26 @@
 # Minecraft Bedrock Player List API (Offline Fetcher)
 
-This project allows you to track online players from a **Minecraft Bedrock Dedicated Server** by monitoring the server logs.  
-It generates a local API endpoint that returns a real-time list of online players.
+This project provides a lightweight API that reads your Minecraft Bedrock server logs and displays a real-time list of online players — fully offline and local.
 
 ---
 
 ## ✅ Features
 
-- Fully compatible with Bedrock Dedicated Servers (BDS)
-- Works without any plugins or external services
-- Parses log files to track connect/disconnect events
-- Returns online players in a clean JSON API format
-- Built with Node.js and Express
-- Optional PM2 support to keep the script running in the background
+- Compatible with **Minecraft Bedrock Dedicated Servers**
+- Tracks players by reading recent log activity
+- No plugins or mods required
+- Works locally, outputs a JSON API at `/api/players`
+- Configurable to work with any system, not tied to specific panel software
+- Simple Express.js server
 
 ---
 
 ## ⚙️ Requirements
 
-- A Linux-based system
-- Node.js (v14+ recommended)
-- PM2 (optional but recommended)
-- Your Bedrock server must be logging player activity (e.g., via Crafty Controller or a similar tool)
+- A Linux server
+- Node.js installed
+- `npm` and optionally `pm2` for background execution
+- Access to your Minecraft server logs (through Crafty or any other controller)
 
 ---
 
@@ -37,106 +36,106 @@ sudo npm install -g pm2
 
 ---
 
-### 2. Locate Your Server Log File
+### 2. Create Your Player Tracker Script
 
-You'll need the full path to your Bedrock server log. If you're using **Crafty Controller**, logs are typically located at:
-
-```
-/opt/crafty/logs/server-<your-server-uuid>.log
-```
-
-To find your **server UUID**, go to the Crafty dashboard, select your server, and look for the UUID in the server settings or logs directory.
-
----
-
-### 3. Create the Player Tracker Script
-
-Create a file named `playerTracker.js`:
+Create a file called `playerTracker.js`:
 
 ```bash
 nano playerTracker.js
 ```
 
-Paste the following code inside:
+Paste the following code, replacing the placeholders with your own data:
 
 ```js
-const fs = require('fs');
 const express = require('express');
+const axios = require('axios');
+const https = require('https');
+const path = require('path');
 const cors = require('cors');
+
 const app = express();
 const PORT = 3011;
 
-// === Replace with your actual server UUID ===
-const logFilePath = '/opt/crafty/logs/server-<your-server-uuid>.log';
-
-let playersOnline = new Set();
-
+// === Replace this with the URL you plan to allow (e.g., your site’s domain) ===
 app.use(cors());
-
 app.use((req, res, next) => {
   const origin = req.get('origin') || '';
-  const key = req.query.key;
-
-  const validOrigin = origin.includes('github.io');
-  const validKey = key === 'YOUR_SECRET_KEY';
-
-  if (!validOrigin && !validKey) {
+  if (!origin.includes("YOUR-URL-HERE")) {
     return res.status(403).json({ error: 'Access denied' });
   }
-
   next();
 });
 
+// === Replace these placeholders with your own values ===
+const API_TOKEN = 'YOUR_CRAFTY_API_TOKEN';
+const SERVER_ID = 'YOUR_SERVER_UUID';
+const CRAFTY_API_URL = `https://YOUR_CRAFTY_HOST:PORT/api/v2/servers/${SERVER_ID}/logs`;
+
+// === Disable SSL validation for self-signed certificates ===
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+let activePlayers = new Map();
+
+async function updatePlayerList() {
+  try {
+    const response = await axios.get(CRAFTY_API_URL, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      httpsAgent
+    });
+
+    const logs = response.data.data || [];
+    const players = new Map();
+
+    logs.slice(-50).forEach((message) => {
+      const joinMatch = message.match(/Player connected: ([^,]+)/);
+      const leaveMatch = message.match(/Player disconnected: ([^,]+)/);
+
+      if (joinMatch) players.set(joinMatch[1], joinMatch[1]);
+      if (leaveMatch) players.delete(leaveMatch[1]);
+    });
+
+    activePlayers = players;
+  } catch (error) {
+    console.error('Failed to fetch player data:', error.message);
+  }
+}
+
+setInterval(updatePlayerList, 15000);
+updatePlayerList();
+
 app.get('/api/players', (req, res) => {
-  res.json({ players: [...playersOnline] });
+  res.json({ players: Array.from(activePlayers.values()) });
 });
 
-fs.watchFile(logFilePath, { interval: 1000 }, () => {
-  const content = fs.readFileSync(logFilePath, 'utf8');
-  const lines = content.trim().split('\n').slice(-50);
-
-  lines.forEach(line => {
-    if (line.includes('Player connected:')) {
-      const match = line.match(/Player connected: (.*),/);
-      if (match) playersOnline.add(match[1]);
-    }
-
-    if (line.includes('Player disconnected:')) {
-      const match = line.match(/Player disconnected: (.*),/);
-      if (match) playersOnline.delete(match[1]);
-    }
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`Player API running at http://localhost:${PORT}/api/players`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`▶ Player tracker running at http://0.0.0.0:${PORT}`);
 });
 ```
 
 ---
 
-### 4. Run the Script
-
-You can run it using PM2:
+### 3. Start the Script
 
 ```bash
 pm2 start playerTracker.js --name playerTracker
 pm2 save
 ```
 
-> If you already use another method to auto-start Node.js scripts (like systemd), you can use that instead of PM2.
+> If you use your own method of managing persistent scripts (like systemd or Docker), you can use that instead.
 
 ---
 
-### 5. Test the API
+### 4. Access the API
 
-Visit this URL on the same machine:
+Once running, visit the following on your server:
 
 ```
-http://localhost:3011/api/players?key=YOUR_SECRET_KEY
+http://localhost:3011/api/players
 ```
 
-You should see something like:
+You’ll see output like:
 
 ```json
 {
@@ -144,31 +143,41 @@ You should see something like:
 }
 ```
 
----
-
-## 🔒 Security Notice
-
-The example above includes a basic security mechanism:
-- Only requests with a valid `?key=YOUR_SECRET_KEY` or from `github.io` origins will succeed.
-- Make sure to change `YOUR_SECRET_KEY` to something strong and private.
+This list updates every 15 seconds based on log activity.
 
 ---
 
-## ✅ Output
+## ℹ️ Notes
 
-Once complete, your system will have a local API at:
+- This script uses Crafty’s API as a data source, but you can modify it to read logs directly from disk if you use another setup.
+- Ensure your Crafty instance allows local API access and you know your **server UUID**.
+- Replace all placeholders (`YOUR_CRAFTY_HOST`, `API_TOKEN`, `SERVER_ID`, and `YOUR-URL-HERE`) before running the script.
+
+---
+
+## 🔒 Security
+
+This project includes a simple **origin check**:
+- Requests to `/api/players` are only accepted from a domain you configure.
+- This helps prevent unauthorized external access if you later expose the API.
+
+---
+
+## ✅ Final Output
+
+Once setup is complete, your player list will be available locally at:
 
 ```
-http://localhost:3011/api/players?key=YOUR_SECRET_KEY
+http://localhost:3011/api/players
 ```
 
-This URL returns a real-time list of online players.
+This returns the current players in real-time — no mods, no plugins.
 
 ---
 
-## 🌐 Making It Public?
+## 🌐 Online Access?
 
-This guide intentionally **does not cover online/public access**.  
-Server owners can choose how to expose their API (proxy, SSL, firewall, etc.) based on their own environment.
+This README intentionally **does not include** instructions for making the API public.  
+Admins may choose their own method for securing and exposing their API if needed.
 
 ---
